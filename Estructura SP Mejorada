@@ -1,0 +1,62 @@
+--ESTRUCTURA PROCEDIMIENTO MEJORADO
+CREATE PROCEDURE dbo.[sp_AgregarActualizarEmpleado] @IdEmpleado int,@NombreEmpleado VARCHAR(100),@ApellidoEmpleado VARCHAR(100)
+AS
+BEGIN
+BEGIN TRY
+BEGIN TRANSACTION
+/*******************************************************************************************************************************/
+DECLARE @exito INT = 0;
+DECLARE @mensaje VARCHAR(MAX)=''
+
+--EJEMPLO VALICACION Y RETORNAR EL ERRO:
+IF(1 > 0)
+BEGIN
+	SET @exito = 0;
+	SET @mensaje = 'Error: No se puede dividir entre 0.'
+	PRINT 1/0; --provoca el error y hace el salto al roolback
+END
+
+
+
+IF(@IdEmpleado <= 0)
+BEGIN
+	--NUEVO
+	print 'agregando nuevo registro'
+	
+END
+ELSE
+BEGIN
+	--EDITANDO
+	print 'editando'
+
+END
+
+
+
+--SI TODO SE REALIZO CON EXITO ENTONCES:
+SET @exito = 1;
+SET @mensaje = 'El registro se eliminó exitosamente.'
+
+/*******************************************************************************************************************************/
+COMMIT TRAN   	
+END TRY
+BEGIN CATCH
+ROLLBACK
+	--SI SURGIÖ UN ERROR EN EL PROC:
+    set @exito=0 
+
+	 IF(@mensaje = '') --SI SURGIÖ UN ERRO Y LA VARIABLE ESTA VACIA, ENTONCES FUE ERROR DE SQL:
+	 BEGIN
+		SET @mensaje = 'Se produjo un error interno en el servidor,ERROR_MESSAGE: ' + 
+		cast(ERROR_MESSAGE() as nvarchar(max)) + char(10) + 'ERROR_SEVERITY: ' + cast(ERROR_SEVERITY() as nvarchar(max)) + char(10) +
+		' ERROR_STATE: ' + cast(ERROR_STATE() as nvarchar(max)) + '.'
+	 END
+	 
+PRINT ERROR_MESSAGE()
+PRINT ERROR_LINE()
+END CATCH
+
+--VALORES QUE RETORNARA EL PROC:
+SELECT CONVERT(VARCHAR,@exito) as exito , @mensaje as mensaje
+
+END
